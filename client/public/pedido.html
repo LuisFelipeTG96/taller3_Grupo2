@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Módulo de Pedido</title>
+  <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"
+    ></script>
+</head>
+<body>
+  <h1>Registrar pedido</h1>
+  <input type="text" id="numeroPedido" placeholder="Número de pedido">
+  <input type="text" id="cliente" placeholder="Cliente">
+  <input type="text" id="montoTotal" placeholder="Monto total">
+  <button onclick="javascript:fnRegistrarPedido()">Enviar a Logística</button>
+
+  <h2>Confirmaciones de lectura</h2>
+  <ul id="lista"></ul>
+
+  <script>
+    const token = prompt("Pega tu token JWT (obtenido en POST /seguridad/login)");
+    const socket = io("http://localhost:4001");
+
+    socket.on("pedidoLeido", (pedido) => {
+      const list = document.getElementById("lista");
+      const item = document.createElement("li");
+      item.textContent = `Pedido #${pedido.numero_pedido} leído por Logística (${new Date(pedido.fecha_registro).toLocaleTimeString()})`;
+      list.prepend(item);
+    });
+
+    function fnRegistrarPedido(){
+      const numero_pedido = document.getElementById("numeroPedido").value;
+      const cliente = document.getElementById("cliente").value;
+      const monto_total = document.getElementById("montoTotal").value;
+      fetch("http://localhost:4001/api/v1/pedido", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token,
+        },
+        body: JSON.stringify({ numero_pedido, cliente, monto_total }),
+      });
+    }
+  </script>
+</body>
+</html>

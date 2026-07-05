@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "Taller 3 eCommerce",
+    "description": "Coleccion para el Modulo de Pedido y el Modulo de Ventas.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "base_url", "value": "http://localhost:4001/api/v1" },
+    { "key": "id_pedido", "value": "" },
+    { "key": "token", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Seguridad",
+      "item": [
+        {
+          "name": "Crear persona",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Usuario\",\n  \"apellido\": \"Prueba\",\n  \"nro_documento\": \"12345678\",\n  \"edad\": 28,\n  \"tipo_documento\": { \"id_tipodoc\": 1, \"nombre\": \"DNI\" },\n  \"usuario\": { \"email\": \"usuario@test.com\", \"password\": \"123456\", \"rol\": \"admin\" }\n}"
+            },
+            "url": { "raw": "{{base_url}}/seguridad", "host": ["{{base_url}}"], "path": ["seguridad"] }
+          }
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.collectionVariables.set(\"token\", data.token);",
+                  "    console.log(\"token guardado en {{token}}\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"usuario@test.com\",\n  \"password\": \"123456\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/seguridad/login", "host": ["{{base_url}}"], "path": ["seguridad", "login"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Pedido",
+      "description": "Requiere JWT. Ejecuta antes 'Crear persona' y 'Login' (el login guarda el token automáticamente en {{token}}).",
+      "item": [
+        {
+          "name": "Registrar pedido",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    const data = pm.response.json();",
+                  "    pm.collectionVariables.set(\"id_pedido\", data._id);",
+                  "    console.log(\"id_pedido guardado en {{id_pedido}}\");",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"numero_pedido\": 1001,\n  \"cliente\": \"Juan Perez\",\n  \"monto_total\": 250.50\n}"
+            },
+            "url": { "raw": "{{base_url}}/pedido", "host": ["{{base_url}}"], "path": ["pedido"] }
+          }
+        },
+        {
+          "name": "Pagar pedido",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{token}}" }
+            ],
+            "url": { "raw": "{{base_url}}/pedido/{{id_pedido}}/pago", "host": ["{{base_url}}"], "path": ["pedido", "{{id_pedido}}", "pago"] }
+          }
+        }
+      ]
+    }
+  ]
+}

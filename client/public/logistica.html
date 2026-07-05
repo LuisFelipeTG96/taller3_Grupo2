@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Logística</title>
+  <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"
+    ></script>
+</head>
+<body>
+  <h1>Pedidos recibidos</h1>
+  <ul id="lista"></ul>
+
+  <script>
+    const socket = io("http://localhost:4001");
+
+    socket.on("nuevoPedido", (pedido) => {
+      const list = document.getElementById("lista");
+      const item = document.createElement("li");
+      item.textContent = `Pedido #${pedido.numero_pedido} - Cliente: ${pedido.cliente} - Fecha: ${new Date(pedido.fecha_registro).toLocaleString()} - Monto total: ${pedido.monto_total}`;
+
+      const boton = document.createElement("button");
+      boton.textContent = "Marcar como leído";
+      boton.onclick = function(){
+        socket.emit("pedidoLeido", pedido._id);
+        boton.disabled = true;
+        boton.textContent = "Leído";
+      };
+      item.appendChild(boton);
+
+      list.prepend(item);
+    });
+  </script>
+</body>
+</html>

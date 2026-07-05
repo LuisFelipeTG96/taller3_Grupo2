@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Módulo de Ventas - Confirmación de Pago vía QR</title>
+  <script
+      src="https://cdn.socket.io/4.5.0/socket.io.min.js"
+      integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k"
+      crossorigin="anonymous"
+    ></script>
+</head>
+<body>
+  <h1>Pagar pedido</h1>
+  <input type="text" id="idPedido" placeholder="ID del pedido">
+
+  <img src="qr.jpg">
+
+  <button onclick="javascript:fnPagarPedido()">Pagar pedido</button>
+
+  <h2 id="estadoPago"></h2>
+
+  <script>
+    const token = prompt("Pega tu token JWT (obtenido en POST /seguridad/login)");
+    const socket = io("http://localhost:4001");
+
+    socket.on("pagoConfirmado", (pedido) => {
+      document.getElementById("estadoPago").textContent =
+        `Pago confirmado para el pedido #${pedido.numero_pedido} (${pedido.cliente})`;
+    });
+
+    function fnPagarPedido(){
+      const idPedido = document.getElementById("idPedido").value;
+      fetch(`http://localhost:4001/api/v1/pedido/${idPedido}/pago`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token,
+        },
+      });
+    }
+  </script>
+</body>
+</html>
