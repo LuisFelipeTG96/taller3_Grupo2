@@ -4,8 +4,8 @@ Integrantes: Luis Torres / Frank Fabian
 
 Requisitos
 
-MongoDB corriendo en "localhost:27017"
-Importar en Postman "taller3.postman_collection.json"
+* MongoDB corriendo en "localhost:27017"
+* Importar en Postman "taller3.postman_collection.json"
 
 1. Levantar los servidores
 
